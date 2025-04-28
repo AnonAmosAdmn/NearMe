@@ -1,8 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Box, Text, Link, Flex, Select } from '@chakra-ui/react';
 
+type CategoryName = "Food & Dining" | "Shopping" | "Entertainment" | "Services" | "Nightlife" | "Retail" | "Sports & Outdoors" | "Transportation" | "Health & Wellness" | "Education" | "Arts & Culture" | "Technology" | "Finance" | "Legal Services" | "Automotive" | "Real Estate" | "Travel & Hospitality" | "Event Planning" | "Utilities" | "Government & Public Services" | "Dating & Social" | "Jobs & Career" | "Home & Garden" | "Parenting & Family" | "Religion & Spirituality" | "Outdoor Recreation" | "Arts & Crafts" | "Performing Arts" | "Gaming" | "Sports Leagues" | "Music & Dance" | "Cooking & Culinary" | "Nature Exploration" | "Social Clubs" | "Miscellaneous"; // Add all other category names here
+
+type CategoriesType = Record<CategoryName, string[]>;
+
 const Keywords: React.FC<{ onKeywordClick: (keyword: string) => void }> = ({ onKeywordClick }) => {
-  const categories = {
+  const categories: CategoriesType = {
     "Food & Dining": ["Restaurants", "Coffee Shops", "Bars", "Cafes", "Bakeries", "Pizza Places", "Ice Cream Shops", "Diners", "Fast Food Restaurants", "Food Trucks", "Buffets", "Fine Dining Restaurants", "Seafood Restaurants", "Steakhouses", "Vegetarian Restaurants", "Vegan Restaurants", "Sushi Restaurants", "Indian Restaurants", "Italian Restaurants", "Mexican Restaurants", "Chinese Restaurants", "Thai Restaurants", "Greek Restaurants", "Middle Eastern Restaurants", "Korean Restaurants", "Japanese Restaurants", "Vietnamese Restaurants", "French Restaurants", "German Restaurants", "Brazilian Restaurants", "Argentinian Restaurants", "African Restaurants", "Caribbean Restaurants", "Hawaiian Restaurants", "Australian Restaurants", "New American Restaurants", "Latin American Restaurants", "European Restaurants"],
     "Shopping": ["Shopping Malls", "Grocery Stores", "Convenience Stores", "Supermarkets", "Boutiques", "Department Stores", "Clothing Stores", "Shoe Stores", "Jewelry Stores", "Electronics Stores", "Furniture Stores", "Home Goods Stores", "Bookstores", "Toy Stores", "Sporting Goods Stores", "Outdoor Gear Stores", "Pet Stores", "Art Supply Stores", "Craft Stores", "Antique Shops", "Vintage Shops", "Thrift Stores", "Flea Markets", "Secondhand Stores", "Consignment Shops", "Specialty Stores", "Comic Book Stores", "Music Stores", "Liquor Stores", "Wine Shops", "Beer Stores", "Health Food Stores", "Cosmetics Stores", "Beauty Supply Stores", "Pharmacies", "Drugstores", "Vitamin Shops", "Supplement Stores", "Nutrition Stores", "Organic Stores"],
     "Entertainment": ["Movie Theaters", "Bowling Alleys", "Arcades", "Amusement Parks", "Zoos", "Aquariums", "Museums", "Art Galleries", "Historical Sites", "Monuments", "Landmarks", "Nature Reserves", "Hiking Trails", "Camping Sites", "Picnic Areas", "Playgrounds", "Dog Parks", "Skate Parks", "Beaches", "Lakes", "Rivers", "Mountains", "Parks", "Gardens", "Forests", "Observatories", "Planetariums", "Botanical Gardens", "Wildlife Sanctuaries", "Farms", "Vineyards", "Orchards", "Wineries", "Breweries", "Distilleries"],
@@ -40,7 +44,7 @@ const Keywords: React.FC<{ onKeywordClick: (keyword: string) => void }> = ({ onK
     "Miscellaneous": ["Pawn Shops", "Title Loan Companies", "Payday Loan Companies", "Check Cashing Services", "Currency Exchange Services", "Gold Buyers", "Coin Dealers", "Auction Houses", "Funeral Homes", "Cremation Services", "Flower Shops", "Tanning Salons", "Laundromats", "Dry Cleaners", "Tailors", "Shoe Repair Shops", "Watch Repair Shops", "Jewelry Repair Shops", "Key Duplication Services", "Pet Grooming Services", "Dog Training Services", "House Cleaning Services", "Carpet Cleaning Services", "Window Cleaning Services", "Pressure Washing Services", "Pest Control Services", "Exterminators", "Home Security Companies", "Locksmiths", "Private Investigators", "Detective Agencies", "Process Servers", "Self Storage Facilities", "Mobile Storage Services", "Document Storage Services", "Archive Storage Services", "Moving Companies", "Shipping Companies", "Courier Services", "Fulfillment Services"]
   };
 
-  const [selectedCategory, setSelectedCategory] = useState(Object.keys(categories)[0]);
+  const [selectedCategory, setSelectedCategory] = useState<CategoryName>(Object.keys(categories)[0] as CategoryName);
   const containerRef = useRef<HTMLDivElement>(null);
   const keywords = categories[selectedCategory];
   const scrollSpeed = 1;
@@ -59,34 +63,27 @@ const Keywords: React.FC<{ onKeywordClick: (keyword: string) => void }> = ({ onK
       animationFrame.current = requestAnimationFrame(scrollLoop);
     };
     
-    let animationFrame = { current: null };
+    let animationFrame = { current: null as number | null };
     animationFrame.current = requestAnimationFrame(scrollLoop);
 
-    const handleCategoryChange = () => {
-      cancelAnimationFrame(animationFrame.current);
-      scrollContainer?.scrollTo({ left: 0, behavior: 'auto' });
-      animationFrame.current = requestAnimationFrame(scrollLoop);
-    };
-
     return () => {
-      cancelAnimationFrame(animationFrame.current);
+      if (animationFrame.current) cancelAnimationFrame(animationFrame.current);
     };
   }, [selectedCategory, scrollSpeed]);
-  
+
   const handleCategoryChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedCategory(event.target.value);
+    setSelectedCategory(event.target.value as CategoryName);
     onKeywordClick(event.target.value);
   };
-  
+
   return (
     <Box maxW="md" borderWidth="1px" borderRadius="lg" overflow="hidden" boxShadow="md" bg="white" position="relative">
-      
       <Select value={selectedCategory} onChange={handleCategoryChange}>
-        {Object.keys(categories).map((category, index) => (
-          <option key={index} value={category}>{category}</option>
+        {Object.keys(categories).map((category) => (
+          <option key={category} value={category}>{category}</option>
         ))}
       </Select>
-      
+
       <Flex
         ref={containerRef}
         overflowX="auto"
@@ -99,23 +96,19 @@ const Keywords: React.FC<{ onKeywordClick: (keyword: string) => void }> = ({ onK
           scrollbarWidth: 'none'
         }}
       >
-        {keywords.map((keyword, index) => (
-          <Link key={index} color="blue" mr={4} onClick={() => onKeywordClick(keyword)}>
-            {keyword}
-          </Link>
-        ))}
-        {keywords.map((keyword, index) => (
-          <Link key={index + keywords.length} color="blue" mr={4} onClick={() => onKeywordClick(keyword)}>
-            {keyword}
-          </Link>
-        ))}
-        {keywords.map((keyword, index) => (
-          <Link key={index + keywords.length * 2} color="blue" mr={4} onClick={() => onKeywordClick(keyword)}>
-            {keyword}
-          </Link>
-        ))}
+        {[...Array(3)].flatMap((_, multiplier) =>
+          keywords.map((keyword, index) => (
+            <Link
+              key={index + keywords.length * multiplier}
+              color="blue"
+              mr={4}
+              onClick={() => onKeywordClick(keyword)}
+            >
+              {keyword}
+            </Link>
+          ))
+        )}
       </Flex>
-      
     </Box>
   );
 };

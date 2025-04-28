@@ -4,7 +4,7 @@ import axios from 'axios';
 import BusinessCard from '../components/BusinessCard';
 import Keywords from '../components/Keywords';
 
-const GOOGLE_MAPS_API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
+const GOOGLE_MAPS_API_KEY = 'AIzaSyBmjTN_8V9t1Dgh8XI3OfFGL1xTeRjU4_g';
 
 interface LocationData {
   city: string;
