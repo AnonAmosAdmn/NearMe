@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Text, Image, Center, Flex, Stack, Card, Button } from '@chakra-ui/react';
 import { StarIcon } from '@chakra-ui/icons';
-import axios from 'axios';
 
-const GOOGLE_MAPS_API_KEY = 'AIzaSyBmjTN_8V9t1Dgh8XI3OfFGL1xTeRjU4_g';
+const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
 const getPriceSymbol = (priceLevel: string) => {
   switch (priceLevel) {
@@ -120,7 +119,6 @@ const BusinessCard = ({ place }: { place: Place }) => {
   const { street, city, state, zipCode, country } = truncateAddress(place.formattedAddress);
 
   return (
-
     <Card
       maxW="md"
       borderWidth="1px"
@@ -128,80 +126,55 @@ const BusinessCard = ({ place }: { place: Place }) => {
       overflow="hidden"
       boxShadow="lg"
       bg="white"
+      m={4}
     >
-      {place.displayName.text ? (
-        <Text fontWeight="bold" fontSize="lg" mt={4} ml={4} mr={4}>{place.displayName.text}</Text>
-      ) : (
-        <Text fontWeight="bold" fontSize="xs" mt={4} ml={4} mr={4}>
-          👤 UNLISTED
+      <Stack spacing={3} p={4}>
+        <Text fontWeight="bold" fontSize="lg">
+          {place.displayName.text || '👤 UNLISTED'}
         </Text>
-      )}
-
-      <Flex direction="row" justifyContent="center" p={3}>
-        
-        <Image src={mapUrl} alt="Location Map" borderWidth="1px" borderRadius="lg" boxShadow="md" width="200" height="200"/>
-
-        <Stack width="100%" height="100%" justifyContent="center" alignContent="center">
-
-          {place.formattedAddress ? (
-            <Stack>
-              <Text fontWeight="bold" fontSize="xs" mt={4} ml={4}>{place.formattedAddress}</Text>
-            </Stack>
-          ) : (
-            <Text fontWeight="bold" fontSize="xs" mt={4} ml={4}>
-              🏠 UNLISTED
-            </Text>
-          )}
-
+  
+        <Image
+          src={mapUrl}
+          alt="Location Map"
+          borderRadius="md"
+          boxShadow="md"
+          width="400px"
+          height="100%"
+          objectFit="cover"
+        />
+  
+        <Text fontSize="sm">
+          {place.formattedAddress || '🏠 UNLISTED'}
+        </Text>
+  
+        <Text fontSize="sm" color={place.internationalPhoneNumber ? 'blue.600' : 'black'}>
           {place.internationalPhoneNumber ? (
-            <Text fontWeight="bold" fontSize="xs" color="blue" mt={4} ml={4}>
-              <a href={`tel:${place.internationalPhoneNumber}`}>📞 {truncatedPhoneNumber}</a>
-            </Text>
-          ) : (
-            <Text fontWeight="bold" fontSize="xs" mt={4} ml={4}>
-              📞 UNLISTED
-            </Text>
-          )}
-
+            <a href={`tel:${place.internationalPhoneNumber}`}>📞 {truncatedPhoneNumber}</a>
+          ) : '📞 UNLISTED'}
+        </Text>
+  
+        <Text fontSize="sm" color={place.websiteUri ? 'blue.600' : 'black'}>
           {place.websiteUri ? (
-            <Text fontWeight="bold" fontSize="xs" color="blue" mt={4} ml={4}>
-              <a href={place.websiteUri} target="_blank" rel="noopener noreferrer">🌐{truncatedWebsite}</a>
-            </Text>
-          ) : (
-            <Text fontWeight="bold" fontSize="xs" mt={4} ml={4}>
-              🌐 UNLISTED
-            </Text>
-          )}
-
-          <Flex direction="row" justifyContent="center" mt={4} ml={4}>
-
-            <Text fontWeight="bold" fontSize="xs" mr={4}>
-              Prices : {priceSymbol || '❓'}
-            </Text>
-
+            <a href={place.websiteUri} target="_blank" rel="noopener noreferrer">🌐 {truncatedWebsite}</a>
+          ) : '🌐 UNLISTED'}
+        </Text>
+  
+        <Flex justifyContent="space-between" alignItems="center" mt={2}>
+          <Text fontSize="sm" display="flex" alignItems="center">
+            Rating:&nbsp;
             {place.rating ? (
-              <Text fontWeight="bold" fontSize="xs">
-                Rating : 
-                {[...Array(Math.floor(place.rating))].map((_, index) => (
-                  <StarIcon key={index} color="yellow.400" />
-                ))}
-              </Text>
-            ) : (
-              <Text fontWeight="bold" fontSize="xs">
-                Rating : ❓
-              </Text>
-            )}
+              [...Array(Math.floor(place.rating))].map((_, index) => (
+                <StarIcon key={index} color="yellow.400" />
+              ))
+            ) : '❓'}
+          </Text>
+          <Text fontSize="sm">Prices: {priceSymbol || '❓'}</Text>
+        </Flex>
 
-          </Flex>
-
-        </Stack>
-
-      </Flex>
-
+      </Stack>
     </Card>
-
   );
-
+  
 };
 
 export default BusinessCard;

@@ -77,7 +77,7 @@ const Keywords: React.FC<{ onKeywordClick: (keyword: string) => void }> = ({ onK
   };
 
   return (
-    <Box maxW="md" borderWidth="1px" borderRadius="lg" overflow="hidden" boxShadow="md" bg="white" position="relative">
+    <Box maxW="md" borderWidth="1px" borderRadius="lg" overflow="hidden" boxShadow="md" bg="white" position="relative" m={4}>
       <Select value={selectedCategory} onChange={handleCategoryChange}>
         {Object.keys(categories).map((category) => (
           <option key={category} value={category}>{category}</option>
