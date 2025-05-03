@@ -4,9 +4,9 @@ import axios from 'axios';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     try {
+        const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
         const { latitude, longitude } = req.query;        
         console.log("api: ",latitude,longitude)
-        const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
         const response = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${GOOGLE_MAPS_API_KEY}`);
         if (response.data && response.data.results && response.data.results.length > 0) {
             const addressComponents = response.data.results[0].address_components;

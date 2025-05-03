@@ -33,7 +33,6 @@ const HomePage: React.FC = () => {
 
       const { latitude, longitude } = position.coords;
 
-      // Directly using Google Maps Geocoding API to get location data
       const geocodeResponse = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json`, {
         params: {
           latlng: `${latitude},${longitude}`,
@@ -48,7 +47,7 @@ const HomePage: React.FC = () => {
           zipCode: locationData.find((component: any) => component.types.includes('postal_code'))?.long_name,
         });
         setUserLocation(`${latitude},${longitude}`);
-        searchNearbyPlaces(latitude, longitude); // Proceed with places search
+        searchNearbyPlaces(latitude, longitude); 
       }
     } catch (error) {
       console.error('Error fetching location data:', error);
@@ -159,7 +158,7 @@ const HomePage: React.FC = () => {
   };
 
   return (
-    <Box bg="linear-gradient(to bottom, #2979FF, #000000)" minHeight="100vh" py={8} no-scrollbar="true" overflow-hidden>
+    <Box bg="linear-gradient(to bottom, #2979FF, #000000)" minHeight="100vh" py={8} >
       <Box textAlign="center" maxW="md" mx="auto">
         <Flex justifyContent="center" mb={4}>
           <Input
@@ -204,21 +203,22 @@ const HomePage: React.FC = () => {
 
         {!loading && (
           <Center>
-            <Stack spacing={4}>
+            <Flex direction="row" wrap="wrap" gap={4} justify="center">
               {places.map((place, index) => (
                 <BusinessCard key={index} place={place} />
               ))}
-            </Stack>
+            </Flex>
           </Center>
         )}
-      </Box>
+
       
-      <Box as="footer" bg="black.900" py={4} px={6}>
-        <Center>
-          <Text fontSize="sm" color="white" ml={3}>
-            © 2025 Near-Me. All rights reserved.
-          </Text>
-        </Center>
+        <Box as="footer" bg="black.900" py={4} px={6}>
+          <Center>
+            <Text fontSize="sm" color="white" ml={3}>
+              © 2025 Near-Me. All rights reserved.
+            </Text>
+          </Center>
+        </Box>
       </Box>
     </Box>
   );

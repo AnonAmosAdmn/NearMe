@@ -4,17 +4,13 @@ import { StarIcon } from '@chakra-ui/icons';
 
 const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
-const getPriceSymbol = (priceLevel: string) => {
-  switch (priceLevel) {
-    case 'PRICE_LEVEL_INEXPENSIVE':
-      return '💲';
-    case 'PRICE_LEVEL_MODERATE':
-      return '💲💲';
-    case 'PRICE_LEVEL_EXPENSIVE':
-      return '💲💲💲';
-    default:
-      return '❓';
-  }
+const getPriceSymbol = (priceLevel: string): string => {
+  const priceMap: Record<string, string> = {
+    PRICE_LEVEL_INEXPENSIVE: '💲',
+    PRICE_LEVEL_MODERATE: '💲💲',
+    PRICE_LEVEL_EXPENSIVE: '💲💲💲',
+  };
+  return priceMap[priceLevel] ?? '❓';
 };
 
 const truncateWebsite = (websiteUri: string) => {
@@ -24,32 +20,19 @@ const truncateWebsite = (websiteUri: string) => {
 };
 
 const truncateAddress = (formattedAddress: string) => {
-  if (!formattedAddress) return { street: '', city: '', state: '', zipCode: '', country: '' };
+  const EMPTY_ADDRESS = { street: '', city: '', state: '', zipCode: '', country: '' };
+  if (!formattedAddress) return EMPTY_ADDRESS;
 
-  const regex = /\b\d{5}\b/g;
-  const matches = [...formattedAddress.matchAll(regex)];
+  const zipRegex = /\b\d{5}\b/g;
+  const matches = [...formattedAddress.matchAll(zipRegex)];
+  if (!matches.length) return { ...EMPTY_ADDRESS, street: formattedAddress };
 
-  if (matches.length > 0) {
-    const lastMatchIndex = matches[matches.length - 1].index;
-    const truncatedAddress = formattedAddress.substring(0, lastMatchIndex).trim();
-    const addressParts = truncatedAddress.split(',').map(part => part.trim());
+  const lastZipIndex = matches.at(-1)?.index ?? 0;
+  const truncated = formattedAddress.substring(0, lastZipIndex).trim();
+  const [street = '', city = '', state = '', zipCode = '', country = ''] = 
+    truncated.split(',').map(part => part.trim());
 
-    let street = '';
-    let city = '';
-    let state = '';
-    let zipCode = '';
-    let country = '';
-
-    if (addressParts.length >= 1) street = addressParts[0];
-    if (addressParts.length >= 2) city = addressParts[1];
-    if (addressParts.length >= 3) state = addressParts[2];
-    if (addressParts.length >= 4) zipCode = addressParts[3];
-    if (addressParts.length >= 5) country = addressParts[4];
-
-    return { street, city, state, zipCode, country };
-  }
-
-  return { street: formattedAddress, city: '', state: '', zipCode: '', country: '' };
+  return { street, city, state, zipCode, country };
 };
 
 const truncatePhoneNumber = (phoneNumber: string) => {
@@ -113,7 +96,7 @@ const BusinessCard = ({ place }: { place: Place }) => {
   }
 
   const { latitude, longitude } = coordinates;
-  const mapUrl = `https://maps.googleapis.com/maps/api/staticmap?center=${latitude},${longitude}&zoom=16&size=200x200&markers=color:red%7C${latitude},${longitude}&key=${GOOGLE_MAPS_API_KEY}`;
+  const mapUrl = `https://maps.googleapis.com/maps/api/staticmap?center=${latitude},${longitude}&zoom=14&size=200x200&markers=color:red%7C${latitude},${longitude}&key=${GOOGLE_MAPS_API_KEY}`;
   const truncatedWebsite = truncateWebsite(place.websiteUri);
   const truncatedPhoneNumber = truncatePhoneNumber(place.internationalPhoneNumber);
   const { street, city, state, zipCode, country } = truncateAddress(place.formattedAddress);
@@ -121,9 +104,8 @@ const BusinessCard = ({ place }: { place: Place }) => {
   return (
     <Card
       maxW="md"
-      borderWidth="1px"
+      borderWidth="2px"
       borderRadius="lg"
-      overflow="hidden"
       boxShadow="lg"
       bg="white"
       m={4}
@@ -132,14 +114,26 @@ const BusinessCard = ({ place }: { place: Place }) => {
         <Text fontWeight="bold" fontSize="lg">
           {place.displayName.text || '👤 UNLISTED'}
         </Text>
-  
+        
+        {(place as any)?.photos?.[0]?.name && (
+          <Image
+            src={`https://places.googleapis.com/v1/${(place as any).photos[0].name}/media?key=${GOOGLE_MAPS_API_KEY}&maxWidthPx=400`}
+            alt={`${place.displayName.text}`}
+            borderRadius="md"
+            boxShadow="md"
+            width="100%"
+            maxH="400px"
+            objectFit="cover"
+          />
+        )}
+
         <Image
           src={mapUrl}
           alt="Location Map"
           borderRadius="md"
           boxShadow="md"
           width="400px"
-          height="100%"
+          height="300px"
           objectFit="cover"
         />
   
@@ -168,7 +162,7 @@ const BusinessCard = ({ place }: { place: Place }) => {
               ))
             ) : '❓'}
           </Text>
-          <Text fontSize="sm">Prices: {priceSymbol || '❓'}</Text>
+          <Text fontSize="sm">{priceSymbol || '❓'}: Prices </Text>
         </Flex>
 
       </Stack>
