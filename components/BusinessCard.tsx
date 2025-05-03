@@ -92,7 +92,7 @@ const BusinessCard = ({ place }: { place: Place }) => {
   }, [place]);
 
   if (!coordinates) {
-    return <div>Loading...</div>;
+    return <div> </div>;
   }
 
   const { latitude, longitude } = coordinates;
